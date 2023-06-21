@@ -1,7 +1,25 @@
 const express = require('express');
+const app = express();
+const morgan = require('morgan');
 
 app.use(express.static('public'));
-const app = express();
+app.use(morgan('dev'));
+
+app.use((err, req, res, next) => {
+    console.error(err);
+    res.status(500).send('Internal Server Error');
+  });
+
+  app.get('/movies', (req, res, next) => {
+    // Some code that may throw an error
+    try {
+      // ...
+    } catch (err) {
+      next(err);
+    }
+  });
+  
+
 
 app.get('/movies', (req, res) => {
     const movies = [

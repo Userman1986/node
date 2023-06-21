@@ -1,4 +1,6 @@
 const express = require('express');
+
+app.use(express.static('public'));
 const app = express();
 
 app.get('/movies', (req, res) => {
@@ -14,7 +16,12 @@ app.get('/movies', (req, res) => {
     res.send('Welcome to my movie API!');
   });
   
-  const port = PORT_NUMBER;
+
+
+
+
+
+  const port = 1800;
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });

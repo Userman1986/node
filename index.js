@@ -49,6 +49,19 @@ app.get('/movies', (req, res) => {
     });
 });
 
+app.get('/genre/:genreName', (req, res) => {
+  const genreName = req.params.genreName;
+  Movie.find({ genre: genreName })
+    .then(movies => {
+      res.json(movies);
+    })
+    .catch(error => {
+      console.error('Error fetching movies:', error);
+      res.status(500).json({ error: '500Internal Server Error' });
+    });
+});
+
+
 app.post('/movies', (req, res) => {
   res.send('Create a new movie');
 });

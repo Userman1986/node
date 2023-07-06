@@ -1,6 +1,8 @@
 const express = require('express');
 const app = express();
 const morgan = require('morgan');
+const mongoose = require('mongoose');
+const { Movie, Genre, Director, User } = require('./models');
 
 const movies = [
   {
@@ -17,25 +19,34 @@ const movies = [
     director: 'Director 2',
     imageURL: 'https://*'
   },
-  // Add more movie
+  // Add more movies
 ];
 
+mongoose.connect('mongodb://localhost:27017/movies', { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    console.log('Connected to MongoDB');
+  })
+  .catch(error => {
+    console.error('Error connecting to MongoDB:', error);
+  });
 
 app.use(morgan('dev'));
-
 app.use(express.static('public'));
-
-app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).send('Internal Server Error');
-});
+app.use(express.json());
 
 app.get('/', (req, res) => {
   res.send('Welcome to my movie API!');
 });
 
 app.get('/movies', (req, res) => {
-  res.json(movies);
+  Movie.find()
+    .then(movies => {
+      res.json(movies);
+    })
+    .catch(error => {
+      console.error('Error fetching movies:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    });
 });
 
 app.post('/movies', (req, res) => {
@@ -75,7 +86,7 @@ app.delete('/users/:userId', (req, res) => {
   res.send(`Delete user with ID ${userId}`);
 });
 
-const port = 1800;
+const port = 27017;
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });

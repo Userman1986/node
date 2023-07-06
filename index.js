@@ -49,17 +49,31 @@ app.get('/movies', (req, res) => {
     });
 });
 
-app.get('/genre/:genreName', (req, res) => {
-  const genreName = req.params.genreName;
-  Movie.find({ genre: genreName })
-    .then(movies => {
-      res.json(movies);
+app.get('/movies/genre/:name', (req, res) => {
+  const genreName = req.params.name;
+
+  Genre.findOne({ name: genreName })
+    .then(genre => {
+      if (!genre) {
+        // Genre not found
+        return res.status(404).json({ error: 'Genre not found' });
+      }
+
+      Movie.find({ genre: genre._id })
+        .then(movies => {
+          res.json(movies);
+        })
+        .catch(error => {
+          console.error('Error fetching movies:', error);
+          res.status(500).json({ error: 'Internal Server Error' });
+        });
     })
     .catch(error => {
-      console.error('Error fetching movies:', error);
-      res.status(500).json({ error: '500Internal Server Error' });
+      console.error('Error fetching genre:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
     });
 });
+
 
 
 app.post('/movies', (req, res) => {

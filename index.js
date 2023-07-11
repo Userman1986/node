@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const morgan = require('morgan');
+const mongoose = require('mongoose');
 const { Movie, Genre, Director, User } = require('./models');
 
 const movies = [
@@ -21,6 +22,14 @@ const movies = [
   // Add more movies
 ];
 
+mongoose.connect('mongodb://localhost:27017/movies', { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    console.log('Connected to MongoDB');
+  })
+  .catch(error => {
+    console.error('Error connecting to MongoDB:', error);
+  });
+
 app.use(morgan('dev'));
 app.use(express.static('public'));
 app.use(express.json());
@@ -30,34 +39,55 @@ app.get('/', (req, res) => {
 });
 
 app.get('/movies', (req, res) => {
-  res.json(movies);
+  Movie.find()
+    .then(movies => {
+      res.json(movies);
+    })
+    .catch(error => {
+      console.error('Error fetching movies:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    });
 });
 
+app.get('/movies/genre/:name', (req, res) => {
+  const genreName = req.params.name;
+
+  Genre.findOne({ name: genreName })
+    .then(genre => {
+      if (!genre) {
+        // Genre not found
+        return res.status(404).json({ error: 'Genre not found' });
+      }
+
+      Movie.find({ genre: genre._id })
+        .then(movies => {
+          res.json(movies);
+        })
+        .catch(error => {
+          console.error('Error fetching movies:', error);
+          res.status(500).json({ error: 'Internal Server Error' });
+        });
+    })
+    .catch(error => {
+      console.error('Error fetching genre:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    });
+});
+
+
+
 app.post('/movies', (req, res) => {
-  const newMovie = req.body;
-  movies.push(newMovie);
-  res.json(newMovie);
+  res.send('Create a new movie');
 });
 
 app.get('/movies/:movieId', (req, res) => {
   const movieId = req.params.movieId;
-  const movie = movies.find(movie => movie.id === movieId);
-  if (movie) {
-    res.json(movie);
-  } else {
-    res.status(404).json({ error: 'Movie not found' });
-  }
+  res.send(`Get details of movie with ID ${movieId}`);
 });
 
 app.delete('/movies/:movieId', (req, res) => {
   const movieId = req.params.movieId;
-  const index = movies.findIndex(movie => movie.id === movieId);
-  if (index !== -1) {
-    const deletedMovie = movies.splice(index, 1);
-    res.json({ message: 'Movie deleted successfully', movie: deletedMovie[0] });
-  } else {
-    res.status(404).json({ error: 'Movie not found' });
-  }
+  res.send(`Delete movie with ID ${movieId}`);
 });
 
 app.get('/users', (req, res) => {

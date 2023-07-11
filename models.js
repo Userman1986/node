@@ -1,36 +1,39 @@
 const mongoose = require('mongoose');
 
-const genreSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  description: { type: String, required: true }
-});
-
-const directorSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  bio: { type: String, required: true },
-  birthYear: { type: Number, required: true },
-  deathYear: { type: Number }
-});
-
+// Create a schema for the Movies collection
 const movieSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  description: { type: String, required: true },
-  genre: { type: mongoose.Schema.Types.ObjectId, ref: 'Genre', required: true },
-  director: { type: mongoose.Schema.Types.ObjectId, ref: 'Director', required: true },
-  imageURL: { type: String }
+  title: String,
+  description: String,
+  genre: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Genre'
+  },
+  director: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Director'
+  },
+  imageURL: String,
+  featured: Boolean
 });
 
+// Create a schema for the Users collection
 const userSchema = new mongoose.Schema({
-  username: { type: String, required: true },
-  password: { type: String, required: true },
-  email: { type: String, required: true },
-  dateOfBirth: { type: Date, required: true },
-  favoriteMovies: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Movie' }]
+  username: String,
+  email: String,
+  password: String,
+  favoriteMovies: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Movie'
+  }]
 });
 
-const Genre = mongoose.model('Genre', genreSchema);
-const Director = mongoose.model('Director', directorSchema);
+// Create models using the defined schemas
 const Movie = mongoose.model('Movie', movieSchema);
 const User = mongoose.model('User', userSchema);
 
-module.exports = { Movie, Genre, Director, User };
+// Export the models for use in other files
+module.exports = {
+  Movie,
+  User
+};
+

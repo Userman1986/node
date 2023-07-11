@@ -4,24 +4,6 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 const { Movie, Genre, Director, User } = require('./models');
 
-const movies = [
-  {
-    title: 'Movie 1',
-    description: 'This is Movie 1',
-    genre: 'Action',
-    director: 'Director 1',
-    imageURL: 'https://*'
-  },
-  {
-    title: 'Movie 2',
-    description: 'This is Movie 2',
-    genre: 'Comedy',
-    director: 'Director 2',
-    imageURL: 'https://*'
-  },
-  // Add more movies
-];
-
 mongoose.connect('mongodb://localhost:27017/movies', { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log('Connected to MongoDB');
@@ -74,43 +56,109 @@ app.get('/movies/genre/:name', (req, res) => {
     });
 });
 
-
-
 app.post('/movies', (req, res) => {
-  res.send('Create a new movie');
+  const movieData = req.body;
+  Movie.create(movieData)
+    .then(movie => {
+      res.json(movie);
+    })
+    .catch(error => {
+      console.error('Error creating movie:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    });
 });
 
 app.get('/movies/:movieId', (req, res) => {
   const movieId = req.params.movieId;
-  res.send(`Get details of movie with ID ${movieId}`);
+  Movie.findById(movieId)
+    .then(movie => {
+      if (!movie) {
+        return res.status(404).json({ error: 'Movie not found' });
+      }
+      res.json(movie);
+    })
+    .catch(error => {
+      console.error('Error fetching movie:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    });
 });
 
 app.delete('/movies/:movieId', (req, res) => {
   const movieId = req.params.movieId;
-  res.send(`Delete movie with ID ${movieId}`);
+  Movie.findByIdAndRemove(movieId)
+    .then(() => {
+      res.json({ message: 'Movie deleted successfully' });
+    })
+    .catch(error => {
+      console.error('Error deleting movie:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    });
 });
 
 app.get('/users', (req, res) => {
-  res.send('Get all users');
+  User.find()
+    .then(users => {
+      res.json(users);
+    })
+    .catch(error => {
+      console.error('Error fetching users:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    });
 });
 
 app.post('/users', (req, res) => {
-  res.send('Create a new user');
+  const userData = req.body;
+  User.create(userData)
+    .then(user => {
+      res.json(user);
+    })
+    .catch(error => {
+      console.error('Error creating user:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    });
 });
 
 app.get('/users/:userId', (req, res) => {
   const userId = req.params.userId;
-  res.send(`Get details of user with ID ${userId}`);
+  User.findById(userId)
+    .then(user => {
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      res.json(user);
+    })
+    .catch(error => {
+      console.error('Error fetching user:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    });
 });
 
 app.put('/users/:userId', (req, res) => {
   const userId = req.params.userId;
-  res.send(`Update details of user with ID ${userId}`);
+  const updatedUserData = req.body;
+  User.findByIdAndUpdate(userId, updatedUserData, { new: true })
+    .then(user => {
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      res.json(user);
+    })
+    .catch(error => {
+      console.error('Error updating user:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    });
 });
 
 app.delete('/users/:userId', (req, res) => {
   const userId = req.params.userId;
-  res.send(`Delete user with ID ${userId}`);
+  User.findByIdAndRemove(userId)
+    .then(() => {
+      res.json({ message: 'User deleted successfully' });
+    })
+    .catch(error => {
+      console.error('Error deleting user:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    });
 });
 
 const port = 27017;

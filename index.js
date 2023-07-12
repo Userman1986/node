@@ -161,7 +161,7 @@ app.delete('/users/:userId', (req, res) => {
     });
 });
 
-const port = 27017;
+const port = 3000;
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });

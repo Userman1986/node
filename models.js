@@ -35,12 +35,13 @@ const userSchema = new mongoose.Schema({
   username: String,
   email: String,
   password: String,
-  dateOfBirth: Date,
+  birthday: Date, // Update the field name to 'birthday'
   favoriteMovies: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Movie'
   }]
 });
+
 
 // Create models using the defined schemas
 const Movie = mongoose.model('Movie', movieSchema);

@@ -7,7 +7,7 @@ const passport = require('passport');
 const { Strategy: JWTStrategy, ExtractJwt } = require('passport-jwt');
 
 
-mongoose.connect('mongodb://localhost:3000/movies', { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect('mongodb://localhost:27017/movies', { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log('Connected to MongoDB');
   })

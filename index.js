@@ -3,8 +3,11 @@ const app = express();
 const morgan = require('morgan');
 const mongoose = require('mongoose');
 const { Movie, Genre, Director, User } = require('./models');
+const passport = require('passport');
+const { Strategy: JWTStrategy, ExtractJwt } = require('passport-jwt');
 
-mongoose.connect('mongodb://localhost:27017/movies', { useNewUrlParser: true, useUnifiedTopology: true })
+
+mongoose.connect('mongodb://localhost:3000/movies', { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log('Connected to MongoDB');
   })
@@ -16,11 +19,35 @@ app.use(morgan('dev'));
 app.use(express.static('public'));
 app.use(express.json());
 
+passport.use(
+  new JWTStrategy(
+    {
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      secretOrKey: '123456789', 
+    },
+    (payload, done) => {
+  
+      User.findById(payload.sub)
+        .then(user => {
+          if (user) {
+            return done(null, user);
+          } else {
+            return done(null, false);
+          }
+        })
+        .catch(err => done(err, false));
+    }
+  )
+);
+
+
+
+
 app.get('/', (req, res) => {
   res.send('Welcome to my movie API!');
 });
 
-app.get('/movies', (req, res) => {
+app.get('/movies', passport.authenticate('jwt', { session: false }), (req, res) => {
   Movie.find()
     .then(movies => {
       res.json(movies);
@@ -30,6 +57,7 @@ app.get('/movies', (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
     });
 });
+
 
 app.get('/movies/genre/:name', (req, res) => {
   const genreName = req.params.name;

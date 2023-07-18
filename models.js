@@ -6,11 +6,11 @@ const movieSchema = new mongoose.Schema({
   description: String,
   genre: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Genre'
+    ref: 'genre'
   },
   director: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Director'
+    ref: 'director'
   },
   imageURL: String,
   featured: Boolean
@@ -44,10 +44,10 @@ const userSchema = new mongoose.Schema({
 
 
 // Create models using the defined schemas
-const Movie = mongoose.model('Movie', movieSchema);
-const Director = mongoose.model('Director', directorSchema);
-const Genre = mongoose.model('Genre', genreSchema);
-const User = mongoose.model('User', userSchema);
+const Movie = mongoose.model('movie', movieSchema);
+const Director = mongoose.model('director', directorSchema);
+const Genre = mongoose.model('genre', genreSchema);
+const User = mongoose.model('user', userSchema);
 
 module.exports = {
   Movie,

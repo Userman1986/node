@@ -19,26 +19,7 @@ app.use(morgan('dev'));
 app.use(express.static('public'));
 app.use(express.json());
 
-passport.use(
-  new JWTStrategy(
-    {
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: '123456789', 
-    },
-    (payload, done) => {
-  
-      User.findById(payload.sub)
-        .then(user => {
-          if (user) {
-            return done(null, user);
-          } else {
-            return done(null, false);
-          }
-        })
-        .catch(err => done(err, false));
-    }
-  )
-);
+require('./auth')(app);
 
 
 
@@ -59,7 +40,7 @@ app.get('/movies', passport.authenticate('jwt', { session: false }), (req, res) 
 });
 
 
-app.get('/movies/genre/:name', (req, res) => {
+app.get('/movies/genre/:name', passport.authenticate('jwt', { session: false }), (req, res) => {
   const genreName = req.params.name;
 
   Genre.findOne({ name: genreName })
@@ -84,7 +65,7 @@ app.get('/movies/genre/:name', (req, res) => {
     });
 });
 
-app.post('/movies', (req, res) => {
+app.post('/movies', passport.authenticate('jwt', { session: false }), (req, res) => {
   const movieData = req.body;
   Movie.create(movieData)
     .then(movie => {
@@ -96,7 +77,7 @@ app.post('/movies', (req, res) => {
     });
 });
 
-app.get('/movies/:movieId', (req, res) => {
+app.get('/movies/:movieId', passport.authenticate('jwt', { session: false }), (req, res) => {
   const movieId = req.params.movieId;
   Movie.findById(movieId)
     .then(movie => {
@@ -111,7 +92,7 @@ app.get('/movies/:movieId', (req, res) => {
     });
 });
 
-app.delete('/movies/:movieId', (req, res) => {
+app.delete('/movies/:movieId', passport.authenticate('jwt', { session: false }), (req, res) => {
   const movieId = req.params.movieId;
   Movie.findByIdAndRemove(movieId)
     .then(() => {

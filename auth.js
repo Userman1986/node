@@ -1,48 +1,49 @@
-const express = require('express');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const { Strategy: JWTStrategy, ExtractJwt } = require('passport-jwt');
+const Models = require('./models');
 
-const router = express.Router();
+let User = Models.User;
 
-// Login endpoint
-router.post('/login', (req, res, next) => {
-  passport.authenticate('local', { session: false }, (err, user, info) => {
-    if (err) {
-      return next(err);
-    }
+module.exports = (router) => {
 
-    if (!user) {
-      return res.status(401).json({ message: info.message });
-    }
+  router.post('/login', (req, res, next) => {
+    passport.authenticate('local', { session: false }, (err, user, info) => {
+      console.log(err, user, info)
+      if (err) {
+        return next(err);
+      }
 
-    // Generate JWT token
-    const token = jwt.sign({ sub: user._id }, '123456789');
+      if (!user) {
+        return res.status(401).json({ message: info.message });
+      }
 
-    // Return the token as a response
-    return res.json({ token });
-  })(req, res, next);
-});
+      // Generate JWT token
+      const token = jwt.sign({ sub: user._id }, '123456789');
 
-passport.use(
-  new JWTStrategy(
-    {
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: '123456789', 
-    },
-    (payload, done) => {
-      // Check if the user exists in the database
-      User.findById(payload.sub)
-        .then(user => {
-          if (user) {
-            return done(null, user);
-          } else {
-            return done(null, false);
-          }
-        })
-        .catch(err => done(err, false));
-    }
-  )
-);
+      // Return the token as a response
+      return res.json({ token });
+    })(req, res, next);
+  });
 
-module.exports = router;
+  passport.use(
+    new JWTStrategy(
+      {
+        jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+        secretOrKey: '123456789',
+      },
+      (payload, done) => {
+        // Check if the user exists in the database
+        User.findById(payload.sub)
+          .then(user => {
+            if (user) {
+              return done(null, user);
+            } else {
+              return done(null, false);
+            }
+          })
+          .catch(err => done(err, false));
+      }
+    )
+  );
+}      

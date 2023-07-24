@@ -2,6 +2,7 @@ const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const { Strategy: JWTStrategy, ExtractJwt } = require('passport-jwt');
 const Models = require('./models');
+require('./passport');
 
 let User = Models.User;
 
@@ -22,7 +23,7 @@ module.exports = (router) => {
       const token = jwt.sign({ sub: user._id }, '123456789');
 
       // Return the token as a response
-      return res.json({ token });
+      return res.json({ user, token });
     })(req, res, next);
   });
 

@@ -104,7 +104,7 @@ app.delete('/movies/:movieId', passport.authenticate('jwt', { session: false }),
     });
 });
 
-app.get('/users', (req, res) => {
+app.get('/users', passport.authenticate('jwt', { session: false }), (req, res) => {
   User.find()
     .then(users => {
       res.json(users);
@@ -127,7 +127,7 @@ app.post('/users', (req, res) => {
     });
 });
 
-app.get('/users/:userId', (req, res) => {
+app.get('/users/:userId', passport.authenticate('jwt', { session: false }), (req, res) => {
   const userId = req.params.userId;
   User.findById(userId)
     .then(user => {
@@ -142,7 +142,7 @@ app.get('/users/:userId', (req, res) => {
     });
 });
 
-app.put('/users/:userId', (req, res) => {
+app.put('/users/:userId', passport.authenticate('jwt', { session: false }), (req, res) => {
   const userId = req.params.userId;
   const updatedUserData = req.body;
   User.findByIdAndUpdate(userId, updatedUserData, { new: true })
@@ -158,7 +158,7 @@ app.put('/users/:userId', (req, res) => {
     });
 });
 
-app.delete('/users/:userId', (req, res) => {
+app.delete('/users/:userId', passport.authenticate('jwt', { session: false }), (req, res) => {
   const userId = req.params.userId;
   User.findByIdAndRemove(userId)
     .then(() => {

@@ -20,7 +20,20 @@ app.use(express.static('public'));
 app.use(express.json());
 
 require('./auth')(app);
+const cors = require('cors');
 
+let allowedOrigins = ['http://localhost:3000', 'http://testsite.com'];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if(!origin) return callback(null, true);
+    if(allowedOrigins.indexOf(origin) === -1){ // If a specific origin isn’t found on the list of allowed origins
+      let message = 'The CORS policy for this application doesn’t allow access from origin ' + origin;
+      return callback(new Error(message ), false);
+    }
+    return callback(null, true);
+  }
+}));
 
 
 
@@ -104,6 +117,36 @@ app.delete('/movies/:movieId', passport.authenticate('jwt', { session: false }),
     });
 });
 
+
+app.post('/users', async (req, res) => {
+  let hashedPassword = Users.hashPassword(req.body.Password);
+  await Users.findOne({ Username: req.body.Username }) // Search to see if a user with the requested username already exists
+    .then((user) => {
+      if (user) {
+      //If the user is found, send a response that it already exists
+        return res.status(400).send(req.body.Username + ' already exists');
+      } else {
+        Users
+          .create({
+            Username: req.body.Username,
+            Password: hashedPassword,
+            Email: req.body.Email,
+            Birthday: req.body.Birthday
+          })
+          .then((user) => { res.status(201).json(user) })
+          .catch((error) => {
+            console.error(error);
+            res.status(500).send('Error: ' + error);
+          });
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send('Error: ' + error);
+    });
+});
+
+
 app.get('/users', passport.authenticate('jwt', { session: false }), (req, res) => {
   User.find()
     .then(users => {
@@ -170,7 +213,7 @@ app.delete('/users/:userId', passport.authenticate('jwt', { session: false }), (
     });
 });
 
-const port = 3000;
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+const port = process.env.PORT || 8080;
+app.listen(port, '0.0.0.0',() => {
+ console.log('Listening on Port ' + port);
 });

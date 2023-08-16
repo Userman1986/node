@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const { Movie, Genre, Director, User } = require('./models');
 const passport = require('passport');
 const { Strategy: JWTStrategy, ExtractJwt } = require('passport-jwt');
+const { User } = require('./models');
 
 
 

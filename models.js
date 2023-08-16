@@ -32,17 +32,21 @@ const genreSchema = new mongoose.Schema({
 });
 
 // Create a schema for the Users collection
-const userSchema = new mongoose.Schema({
-  username: String,
-  email: String,
-  password: String,
-  birthday: Date, // Update the field name to 'birthday'
-  favoriteMovies: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Movie'
-  }]
+let userSchema = mongoose.Schema({
+  Username: {type: String, required: true},
+  Password: {type: String, required: true},
+  Email: {type: String, required: true},
+  Birthday: Date,
+  FavoriteMovies: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Movie' }]
 });
 
+userSchema.statics.hashPassword = (password) => {
+  return bcrypt.hashSync(password, 10);
+};
+
+userSchema.methods.validatePassword = function(password) {
+  return bcrypt.compareSync(password, this.Password);
+};
 
 // Create models using the defined schemas
 const Movie = mongoose.model('movie', movieSchema);

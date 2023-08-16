@@ -4,45 +4,6 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 const { Movie, Genre, Director, User } = require('./models');
 const passport = require('passport');
-const { Strategy: JWTStrategy, ExtractJwt } = require('passport-jwt');
-
-
-
-
-
-const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = "mongodb+srv://esamonin1986:<password>@mymovieapi.lxey35j.mongodb.net/?retryWrites=true&w=majority";
-
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
-});
-
-async function run() {
-  try {
-    // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
-  }
-}
-run().catch(console.dir);
-
-
-
-
-
-
-
-
 
 mongoose.connect('mongodb+srv://esamonin1986:greenfly@mymovieapi.lxey35j.mongodb.net/?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
@@ -156,14 +117,14 @@ app.delete('/movies/:movieId', passport.authenticate('jwt', { session: false }),
 
 
 app.post('/users', async (req, res) => {
-  let hashedPassword = Users.hashPassword(req.body.Password);
-  await Users.findOne({ Username: req.body.Username }) // Search to see if a user with the requested username already exists
+  let hashedPassword = User.hashPassword(req.body.Password);
+  await User.findOne({ Username: req.body.Username }) // Search to see if a user with the requested username already exists
     .then((user) => {
       if (user) {
       //If the user is found, send a response that it already exists
         return res.status(400).send(req.body.Username + ' already exists');
       } else {
-        Users
+        User
           .create({
             Username: req.body.Username,
             Password: hashedPassword,
@@ -251,14 +212,14 @@ app.delete('/users/:userId', passport.authenticate('jwt', { session: false }), (
 });
 
 app.post('/users', async (req, res) => {
-  let hashedPassword = Users.hashPassword(req.body.Password);
-  await Users.findOne({ Username: req.body.Username }) // Search to see if a user with the requested username already exists
+  let hashedPassword = User.hashPassword(req.body.Password);
+  await User.findOne({ Username: req.body.Username }) // Search to see if a user with the requested username already exists
     .then((user) => {
       if (user) {
       //If the user is found, send a response that it already exists
         return res.status(400).send(req.body.Username + ' already exists');
       } else {
-        Users
+        User
           .create({
             Username: req.body.Username,
             Password: hashedPassword,

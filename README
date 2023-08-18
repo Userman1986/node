@@ -1,0 +1,58 @@
+My Movie API
+
+My Movie API is a web application that provides access to a collection of movies, genres, directors, and user accounts. Users can register, log in, browse movies, and interact with their favorite movies.
+
+Table of Contents
+Features
+Technologies Used
+Getting Started
+Installation
+Configuration
+Usage
+Endpoints
+Authentication
+Contributing
+License
+
+
+Features
+
+Browse and search movies by genre or title.
+Access detailed information about movies, including directors and genres.
+Register new user accounts.
+Log in and authenticate users.
+Manage favorite movies for each user.
+Secure API endpoints using JWT authentication.
+Technologies Used
+Node.js
+Express.js
+MongoDB
+Mongoose
+Passport.js (for authentication)
+JWT (JSON Web Tokens)
+Heroku (for deployment)
+
+
+Endpoints
+GET /movies: Get a list of all movies.
+
+GET /movies/genre/:name: Get movies by genre.
+
+GET /movies/:movieId: Get detailed information about a movie.
+
+POST /movies: Add a new movie (requires authentication).
+
+DELETE /movies/:movieId: Delete a movie (requires authentication).
+
+... (similar endpoints for genres, directors, and users)
+
+
+Authentication
+The API uses JWT (JSON Web Tokens) for authentication.
+Register a new user using POST /users with a unique username and password.
+Log in with POST /login to receive an authentication token.
+Use the received token in the Authorization header for protected routes.
+
+
+Contributing
+Contributions are welcome! Please create a pull request with your proposed changes.

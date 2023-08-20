@@ -156,17 +156,6 @@ app.get('/users', passport.authenticate('jwt', { session: false }), (req, res) =
     });
 });
 
-app.post('/users', (req, res) => {
-  const userData = req.body;
-  User.create(userData)
-    .then(user => {
-      res.json(user);
-    })
-    .catch(error => {
-      console.error('Error creating user:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    });
-});
 
 app.get('/users/:userId', passport.authenticate('jwt', { session: false }), (req, res) => {
   const userId = req.params.userId;
@@ -210,35 +199,6 @@ app.delete('/users/:userId', passport.authenticate('jwt', { session: false }), (
       res.status(500).json({ error: 'Internal Server Error' });
     });
 });
-
-app.post('/users', async (req, res) => {
-  let hashedPassword = User.hashPassword(req.body.Password);
-  await User.findOne({ Username: req.body.Username }) // Search to see if a user with the requested username already exists
-    .then((user) => {
-      if (user) {
-      //If the user is found, send a response that it already exists
-        return res.status(400).send(req.body.Username + ' already exists');
-      } else {
-        User
-          .create({
-            Username: req.body.Username,
-            Password: hashedPassword,
-            Email: req.body.Email,
-            Birthday: req.body.Birthday
-          })
-          .then((user) => { res.status(201).json(user) })
-          .catch((error) => {
-            console.error(error);
-            res.status(500).send('Error: ' + error);
-          });
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-      res.status(500).send('Error: ' + error);
-    });
-});
-
 
 const port = process.env.PORT || 8080;
 app.listen(port, '0.0.0.0',() => {

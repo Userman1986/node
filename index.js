@@ -117,7 +117,7 @@ app.delete('/movies/:movieId', passport.authenticate('jwt', { session: false }),
 
 
 app.post('/users', async (req, res) => {
-  const hashedPassword = User.hashPassword(req.body.Password);
+  const hashedPassword = Users.hashPassword(req.body.Password);
   console.log(req.body);
   await User.findOne({ Username: req.body.Username }) // Search to see if a user with the requested username already exists
     .then((user) => {

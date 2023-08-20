@@ -39,7 +39,7 @@ app.get('/', (req, res) => {
   res.send('Welcome to my movie API!');
 });
 
-app.get('/movies', passport.authenticate('jwt', { session: false }), (req, res) => {
+app.get('/movies', (req, res) => {
   Movie.find()
     .then(movies => {
       res.json(movies);

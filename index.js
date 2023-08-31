@@ -20,7 +20,7 @@ app.use(express.json());
 require('./auth')(app);
 const cors = require('cors');
 
-let allowedOrigins = ['http://localhost:3000', 'http://testsite.com'];
+let allowedOrigins = ['http://localhost:1234', 'http://testsite.com'];
 
 app.use(cors({
   origin: (origin, callback) => {

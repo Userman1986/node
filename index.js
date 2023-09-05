@@ -41,10 +41,11 @@ app.get('/', (req, res) => {
 
 app.get('/movies', passport.authenticate('jwt', { session: false }), (req, res) => {
   Movie.find()
-    .then(movies => {
+    .populate('genre director')
+    .then((movies) => {
       res.json(movies);
     })
-    .catch(error => {
+    .catch((error) => {
       console.error('Error fetching movies:', error);
       res.status(500).json({ error: 'Internal Server Error' });
     });

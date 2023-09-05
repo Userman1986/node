@@ -41,7 +41,8 @@ app.get('/', (req, res) => {
 
 app.get('/movies', passport.authenticate('jwt', { session: false }), (req, res) => {
   Movie.find()
-    .populate('genre director')
+    .populate('genre')
+    .populate('director')
     .then((movies) => {
       res.json(movies);
     })

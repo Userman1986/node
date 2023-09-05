@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const morgan = require('morgan');
 const mongoose = require('mongoose');
+const { Schema } = mongoose;
 const { Movie, Genre, Director, User } = require('./models');
 const passport = require('passport');
 
@@ -12,6 +13,34 @@ mongoose.connect('mongodb+srv://esamonin1986:greenfly@mymovieapi.lxey35j.mongodb
   .catch(error => {
     console.error('Error connecting to MongoDB:', error);
   });
+
+  const genreSchema = Schema({
+    _id: Schema.Types.ObjectId,
+    name: String,
+  });
+  
+  const directorSchema = Schema({
+    _id: Schema.Types.ObjectId,
+    name: String,
+   
+  });
+  
+  const movieSchema = Schema({
+    _id: Schema.Types.ObjectId,
+    title: String,
+    description: String,
+    genre: { type: Schema.Types.ObjectId, ref: 'Genre' },
+    director: { type: Schema.Types.ObjectId, ref: 'Director' },
+    imgURL: String,
+    featured: Boolean,
+   
+  });
+  
+  const Genre = mongoose.model('Genre', genreSchema);
+  const Director = mongoose.model('Director', directorSchema);
+  const Movie = mongoose.model('Movie', movieSchema);
+  
+  module.exports = { Genre, Director, Movie };
 
 app.use(morgan('dev'));
 app.use(express.static('public'));
@@ -53,40 +82,33 @@ app.get('/movies', passport.authenticate('jwt', { session: false }), (req, res) 
 });
 
 
-app.get('/genres/:id', passport.authenticate('jwt', { session: false }), (req, res) => {
-  const genreId = req.params.id;
-
-  Genre.findById(genreId)
-    .then((genre) => {
-      if (!genre) {
-        return res.status(404).json({ error: 'Genre not found' });
-      }
-
-      res.json(genre);
-    })
-    .catch((error) => {
-      console.error('Error fetching genre:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    });
+app.get('/genres/:id', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  try {
+    const genreId = req.params.id;
+    const genre = await Genre.findById(genreId);
+    if (!genre) {
+      return res.status(404).json({ error: 'Genre not found' });
+    }
+    res.json(genre);
+  } catch (error) {
+    console.error('Error fetching genre:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 
-app.get('/directors/:id', passport.authenticate('jwt', { session: false }), (req, res) => {
-  const directorId = req.params.id;
-
-
-  Director.findById(directorId)
-    .then((director) => {
-      if (!director) {
-        return res.status(404).json({ error: 'Director not found' });
-      }
-
-      res.json(director);
-    })
-    .catch((error) => {
-      console.error('Error fetching director:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    });
+app.get('/directors/:id', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  try {
+    const directorId = req.params.id;
+    const director = await Director.findById(directorId);
+    if (!director) {
+      return res.status(404).json({ error: 'Director not found' });
+    }
+    res.json(director);
+  } catch (error) {
+    console.error('Error fetching director:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 app.post('/movies/login', (req, res) => {

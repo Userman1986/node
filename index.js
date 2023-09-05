@@ -76,6 +76,12 @@ app.get('/movies/genre/:name', passport.authenticate('jwt', { session: false }),
     });
 });
 
+app.post('/movies/login', (req, res) => {
+  const { username, password } = req.body;
+
+});
+
+
 app.post('/movies', passport.authenticate('jwt', { session: false }), (req, res) => {
   const movieData = req.body;
   Movie.create(movieData)

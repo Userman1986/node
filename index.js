@@ -15,11 +15,6 @@ mongoose.connect('mongodb+srv://esamonin1986:greenfly@mymovieapi.lxey35j.mongodb
     console.error('Error connecting to MongoDB:', error);
   });
 
-app.use(morgan('dev'));
-app.use(express.static('public'));
-app.use(express.json());
-
-require('./auth')(app);
 
 
 
@@ -38,6 +33,12 @@ app.use(cors({
     return callback(null, true);
   }
 }));
+
+app.use(morgan('dev'));
+app.use(express.static('public'));
+app.use(express.json());
+
+require('./auth')(app);
 
 
 

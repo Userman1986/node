@@ -22,7 +22,6 @@ mongoose.connect('mongodb+srv://esamonin1986:greenfly@mymovieapi.lxey35j.mongodb
   const directorSchema = Schema({
     _id: Schema.Types.ObjectId,
     name: String,
-   
   });
   
   const movieSchema = Schema({
@@ -33,7 +32,6 @@ mongoose.connect('mongodb+srv://esamonin1986:greenfly@mymovieapi.lxey35j.mongodb
     director: { type: Schema.Types.ObjectId, ref: 'Director' },
     imgURL: String,
     featured: Boolean,
-   
   });
   
   const Genre = mongoose.model('Genre', genreSchema);
@@ -41,7 +39,7 @@ mongoose.connect('mongodb+srv://esamonin1986:greenfly@mymovieapi.lxey35j.mongodb
   const Movie = mongoose.model('Movie', movieSchema);
   
   module.exports = { Genre, Director, Movie };
-
+  
 app.use(morgan('dev'));
 app.use(express.static('public'));
 app.use(express.json());

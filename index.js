@@ -161,14 +161,14 @@ app.delete('/movies/:movieId', passport.authenticate('jwt', { session: false }),
 
 
 app.post('/users', async (req, res) => {
+  const hashedPassword = User.hashPassword(req.body.Password);
   console.log(req.body);
   await User.findOne({ Username: req.body.Username }) // Search to see if a user with the requested username already exists
-  .then((user) => {
-    if (user) {
+    .then((user) => {
+      if (user) {
       //If the user is found, send a response that it already exists
-      return res.status(400).send(req.body.Username + ' already exists');
-    } else {
-        const hashedPassword = User.hashPassword(req.body.Password);
+        return res.status(400).send(req.body.Username + ' already exists');
+      } else {
         User
           .create({
             Username: req.body.Username,

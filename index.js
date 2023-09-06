@@ -20,19 +20,13 @@ app.use(express.static('public'));
 app.use(express.json());
 
 require('./auth')(app);
+
+
+
+
 const cors = require('cors');
 
-
-const corsOptions = {
-  origin: ['http://localhost:1234', 'http://testsite.com', 'https://guarded-hamlet-46049-f301c8b926bd.herokuapp.com'],
-};
-
-
 let allowedOrigins = ['http://localhost:1234', 'http://testsite.com', 'https://guarded-hamlet-46049-f301c8b926bd.herokuapp.com'];
-
-
-app.use(cors(corsOptions));
-
 
 app.use(cors({
   origin: (origin, callback) => {

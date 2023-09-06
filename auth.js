@@ -26,25 +26,4 @@ module.exports = (router) => {
       return res.json({ user, token });
     })(req, res, next);
   });
-
-  passport.use(
-    new JWTStrategy(
-      {
-        jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-        secretOrKey: '123456789',
-      },
-      (payload, done) => {
-        // Check if the user exists in the database
-        User.findById(payload.sub)
-          .then(user => {
-            if (user) {
-              return done(null, user);
-            } else {
-              return done(null, false);
-            }
-          })
-          .catch(err => done(err, false));
-      }
-    )
-  );
 }      

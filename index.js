@@ -93,7 +93,7 @@ app.get('/directors/:id', passport.authenticate('jwt', { session: false }), asyn
   }
 });
 
-app.post('/login', async (req, res) => {
+app.post('/movies/login', async (req, res) => {
   const { username, password } = req.body;
 
 

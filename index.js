@@ -93,9 +93,30 @@ app.get('/directors/:id', passport.authenticate('jwt', { session: false }), asyn
   }
 });
 
-app.post('/movies/login', (req, res) => {
+app.post('/movies/login', async (req, res) => {
   const { username, password } = req.body;
 
+
+  try {
+    const user = await User.findOne({ Username: username });
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+  
+    const isPasswordValid = await user.validatePassword(password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+
+    const token = generateToken(user);
+
+    res.json({ user, token });
+  } catch (error) {
+    console.error('Error during login:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 

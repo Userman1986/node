@@ -14,32 +14,6 @@ mongoose.connect('mongodb+srv://esamonin1986:greenfly@mymovieapi.lxey35j.mongodb
     console.error('Error connecting to MongoDB:', error);
   });
 
-  const genreSchema = Schema({
-    _id: Schema.Types.ObjectId,
-    name: String,
-  });
-  
-  const directorSchema = Schema({
-    _id: Schema.Types.ObjectId,
-    name: String,
-  });
-  
-  const movieSchema = Schema({
-    _id: Schema.Types.ObjectId,
-    title: String,
-    description: String,
-    genre: { type: Schema.Types.ObjectId, ref: 'Genre' },
-    director: { type: Schema.Types.ObjectId, ref: 'Director' },
-    imgURL: String,
-    featured: Boolean,
-  });
-  
-  const Genre = mongoose.model('Genre', genreSchema);
-  const Director = mongoose.model('Director', directorSchema);
-  const Movie = mongoose.model('Movie', movieSchema);
-  
-  module.exports = { Genre, Director, Movie };
-  
 app.use(morgan('dev'));
 app.use(express.static('public'));
 app.use(express.json());
@@ -52,8 +26,8 @@ let allowedOrigins = ['http://localhost:1234', 'http://testsite.com', 'https://g
 app.use(cors({
   origin: (origin, callback) => {
     if(!origin) return callback(null, true);
-    if(allowedOrigins.indexOf(origin) === -1){ // If a specific origin isn’t found on the list of allowed origins
-      let message = 'The CORS policy for this application doesn’t allow access from origin ' + origin;
+    if(allowedOrigins.indexOf(origin) === -1){ // If a specific origin isn't found on the list of allowed origins
+      let message = 'The CORS policy for this application doesn't allow access from origin ' + origin;
       return callback(new Error(message ), false);
     }
     return callback(null, true);
@@ -66,7 +40,7 @@ app.get('/', (req, res) => {
   res.send('Welcome to my movie API!');
 });
 
-app.get('/movies', passport.authenticate('jwt', { session: false }), (req, res) => {
+app.get('/movies', (req, res) => {
   Movie.find()
     .populate('genre director')
     .then((movies) => {

@@ -20,7 +20,7 @@ module.exports = (router) => {
       }
 
       // Generate JWT token
-      const token = jwt.sign({ sub: user._id }, '123456789');
+      const token = jwt.sign(JSON.stringify(user), '123456789');
 
       // Return the token as a response
       return res.json({ user, token });

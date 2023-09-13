@@ -215,7 +215,11 @@ app.get('/users/:userId', passport.authenticate('jwt', { session: false }), (req
 app.put('/users/:userId', passport.authenticate('jwt', { session: false }), (req, res) => {
   const userId = req.params.userId;
   const updatedUserData = req.body;
-  User.findByIdAndUpdate(userId, updatedUserData, { new: true })
+  User.findByIdAndUpdate(userId, {
+Username: req.body.username,
+Email: req.body.email,
+DateOfBirth: req.body.dateOfBirth
+ }, { new: true })
     .then(user => {
       if (!user) {
         return res.status(404).json({ error: 'User not found' });

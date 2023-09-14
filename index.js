@@ -244,6 +244,61 @@ app.delete('/users/:userId', passport.authenticate('jwt', { session: false }), (
     });
 });
 
+const handleToggleFavorite = async (e, movie) => {
+  e.preventDefault();
+  const isFavorite = favoriteMovies.some((favMovie) => favMovie._id === movie._id);
+  const history = useHistory();
+
+  try {
+    if (isFavorite) {
+      
+      const response = await fetch(
+        `https://guarded-hamlet-46049-f301c8b926bd.herokuapp.com/users/${user._id}/favorites/${movie._id}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        
+        const updatedFavorites = favoriteMovies.filter((favMovie) => favMovie._id !== movie._id);
+        setFavoriteMovies(updatedFavorites);
+        console.log('Movie removed from favorites successfully.');
+      } else {
+        console.error('Failed to remove movie from favorites.');
+      }
+    } else {
+     
+      const response = await fetch(
+        `https://guarded-hamlet-46049-f301c8b926bd.herokuapp.com/users/${user._id}/favorites`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ movieId: movie._id }),
+        }
+      );
+
+      if (response.ok) {
+       
+        setFavoriteMovies([...favoriteMovies, movie]);
+        console.log('Movie added to favorites successfully.');
+      } else {
+        console.error('Failed to add movie to favorites.');
+      }
+    }
+  } catch (error) {
+    console.error('Error toggling movie favorite:', error);
+  }
+  
+  history.push(`/movies/${movie._id}`);
+};
+
 const port = process.env.PORT || 8080;
 app.listen(port, '0.0.0.0',() => {
  console.log('Listening on Port ' + port);

@@ -218,7 +218,9 @@ app.put('/users/:userId', passport.authenticate('jwt', { session: false }), (req
   User.findByIdAndUpdate(userId, {
 Username: req.body.username,
 Email: req.body.email,
-DateOfBirth: req.body.dateOfBirth
+DateOfBirth: req.body.dateOfBirth,
+favoriteMovies: req.body.favoriteMovies,
+
  }, { new: true })
     .then(user => {
       if (!user) {

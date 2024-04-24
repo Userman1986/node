@@ -21,7 +21,7 @@ mongoose.connect('mongodb+srv://esamonin1986:greenfly@mymovieapi.lxey35j.mongodb
 
 const cors = require('cors');
 
-let allowedOrigins = ['http://localhost:1234', 'http://testsite.com', 'userman1986.github.io', 'https://guarded-hamlet-46049-f301c8b926bd.herokuapp.com', 'https://myflixappfromevhenii.netlify.app'];
+let allowedOrigins = ['http://localhost:1234', 'http://testsite.com', 'http://userman1986.github.io', 'https://guarded-hamlet-46049-f301c8b926bd.herokuapp.com', 'https://myflixappfromevhenii.netlify.app'];
 
 app.use(cors({
   origin: (origin, callback) => {

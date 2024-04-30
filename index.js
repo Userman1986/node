@@ -216,10 +216,10 @@ app.put('/users/:userId', passport.authenticate('jwt', { session: false }), (req
   const userId = req.params.userId;
 
   User.findByIdAndUpdate(userId, {
-    Username: req.body.username,
-    Email: req.body.email,
-    DateOfBirth: req.body.dateOfBirth,
-    FavoriteMovies: req.body.favoriteMovies,
+    Username: req.body.Username,
+    Email: req.body.Email,
+    Birthday: req.body.Birthday,
+    FavoriteMovies: req.body.FavoriteMovies,
  }, { new: true })
     .then(user => {
       if (!user) {
@@ -245,7 +245,39 @@ app.delete('/users/:userId', passport.authenticate('jwt', { session: false }), (
     });
 });
 
+app.put('/users/:userId/movies/:movieId', passport.authenticate('jwt', { session: false }), (req, res) => {
+  return User.findOneAndUpdate(
+    { _id: req.params.userId },
+    {
+      $addToSet: { FavoriteMovies: req.params.movieId },
+    },
+    { new: true }
+  ).then((updatedUser) => {
+    res.json(updatedUser.FavoriteMovies);
+  }).catch((err) => {
+    console.error(err);
+    res.status(500).send('Error: ' + err);
+  })
+});
 
+app.delete(
+  '/users/:userId/movies/:movieId',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    return User.findOneAndUpdate(
+      { _id: req.params.userId },
+      { $pull: { FavoriteMovies: req.params.movieId } },
+      { new: true }
+    )
+      .then((updatedUser) => {
+        res.json(updatedUser.FavoriteMovies);
+      })
+      .catch((err) => {
+        console.error(err);
+        res.status(500).send('Error: ' + err);
+      });
+  }
+);
 
 const port = process.env.PORT || 8080;
 app.listen(port, '0.0.0.0',() => {

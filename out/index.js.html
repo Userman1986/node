@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: index.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: index.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Require necessary modules.
+ */
+const express = require('express');
+const app = express();
+const morgan = require('morgan');
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
+const { Movie, Genre, Director, User } = require('./models');
+const passport = require('passport');
+
+/**
+ * Connect to MongoDB database.
+ */
+mongoose.connect('mongodb+srv://esamonin1986:greenfly@mymovieapi.lxey35j.mongodb.net/MyMovieApi?retryWrites=true&amp;w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    console.log('Connected to MongoDB');
+  })
+  .catch(error => {
+    console.error('Error connecting to MongoDB:', error);
+  });
+
+/**
+ * Configure CORS.
+ */
+const cors = require('cors');
+let allowedOrigins = ['http://localhost:1234', 'http://testsite.com', 'https://userman1986.github.io', 'https://guarded-hamlet-46049-f301c8b926bd.herokuapp.com', 'https://myflixappfromevhenii.netlify.app'];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      let message = "The CORS policy for this application doesn't allow access from origin " + origin;
+      return callback(new Error(message), false);
+    }
+    return callback(null, true);
+  }
+}));
+
+/**
+ * Set up middleware.
+ */
+app.use(morgan('dev'));
+app.use(express.static('public'));
+app.use(express.json());
+
+/**
+ * Set up authentication.
+ */
+require('./auth')(app);
+
+/**
+ * Define routes.
+ */
+
+/**
+ * GET /
+ * Welcome message.
+ */
+app.get('/', (req, res) => {
+  res.send('Welcome to my movie API!');
+});
+
+/**
+ * GET /movies
+ * Get all movies.
+ */
+app.get('/movies', (req, res) => {
+  Movie.find()
+    .populate('genre director')
+    .then((movies) => {
+      res.json(movies);
+    })
+    .catch((error) => {
+      console.error('Error fetching movies:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    });
+});
+
+/**
+ * GET /genres/:id
+ * Get a genre by ID.
+ */
+app.get('/genres/:id', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  try {
+    const genreId = req.params.id;
+    const genre = await Genre.findById(genreId);
+    if (!genre) {
+      return res.status(404).json({ error: 'Genre not found' });
+    }
+    res.json(genre);
+  } catch (error) {
+    console.error('Error fetching genre:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+/**
+ * GET /directors/:id
+ * Get a director by ID.
+ */
+app.get('/directors/:id', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  try {
+    const directorId = req.params.id;
+    const director = await Director.findById(directorId);
+    if (!director) {
+      return res.status(404).json({ error: 'Director not found' });
+    }
+    res.json(director);
+  } catch (error) {
+    console.error('Error fetching director:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+/**
+ * POST /movies/login
+ * Login user.
+ */
+app.post('/movies/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const user = await User.findOne({ Username: username });
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const isPasswordValid = await user.validatePassword(password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const token = generateToken(user);
+
+    res.json({ user, token });
+  } catch (error) {
+    console.error('Error during login:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+/**
+ * POST /movies
+ * Create a new movie.
+ */
+app.post('/movies', passport.authenticate('jwt', { session: false }), (req, res) => {
+  const movieData = req.body;
+  Movie.create(movieData)
+    .then(movie => {
+      res.json(movie);
+    })
+    .catch(error => {
+      console.error('Error creating movie:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    });
+});
+
+/**
+ * GET /movies/:movieId
+ * Get a movie by ID.
+ */
+app.get('/movies/:movieId', passport.authenticate('jwt', { session: false }), (req, res) => {
+  const movieId = req.params.movieId;
+  Movie.findById(movieId)
+    .then(movie => {
+      if (!movie) {
+        return res.status(404).json({ error: 'Movie not found' });
+      }
+      res.json(movie);
+    })
+    .catch(error => {
+      console.error('Error fetching movie:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    });
+});
+
+/**
+ * DELETE /movies/:movieId
+ * Delete a movie by ID.
+ */
+app.delete('/movies/:movieId', passport.authenticate('jwt', { session: false }), (req, res) => {
+  const movieId = req.params.movieId;
+  Movie.findByIdAndRemove(movieId)
+    .then(() => {
+      res.json({ message: 'Movie deleted successfully' });
+    })
+    .catch(error => {
+      console.error('Error deleting movie:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    });
+});
+
+// Define other routes as needed...
+
+/**
+ * Start the server.
+ */
+const port = process.env.PORT || 8080;
+app.listen(port, '0.0.0.0',() => {
+ console.log('Listening on Port ' + port);
+});
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#cors">cors</a></li><li><a href="global.html#express">express</a></li><li><a href="global.html#port">port</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Wed May 01 2024 09:12:59 GMT+0200 (Центральная Европа, летнее время)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

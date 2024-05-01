@@ -27,63 +27,17 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>/**
- * Require necessary modules.
- */
-const express = require('express');
-const app = express();
-const morgan = require('morgan');
-const mongoose = require('mongoose');
-const { Schema } = mongoose;
-const { Movie, Genre, Director, User } = require('./models');
-const passport = require('passport');
-
-/**
- * Connect to MongoDB database.
- */
-mongoose.connect('mongodb+srv://esamonin1986:greenfly@mymovieapi.lxey35j.mongodb.net/MyMovieApi?retryWrites=true&amp;w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => {
-    console.log('Connected to MongoDB');
-  })
-  .catch(error => {
-    console.error('Error connecting to MongoDB:', error);
-  });
-
-/**
- * Configure CORS.
- */
-const cors = require('cors');
-let allowedOrigins = ['http://localhost:1234', 'http://testsite.com', 'https://userman1986.github.io', 'https://guarded-hamlet-46049-f301c8b926bd.herokuapp.com', 'https://myflixappfromevhenii.netlify.app'];
-
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      let message = "The CORS policy for this application doesn't allow access from origin " + origin;
-      return callback(new Error(message), false);
-    }
-    return callback(null, true);
-  }
-}));
-
-/**
- * Set up middleware.
- */
-app.use(morgan('dev'));
-app.use(express.static('public'));
-app.use(express.json());
-
-/**
- * Set up authentication.
- */
-require('./auth')(app);
-
-/**
  * Define routes.
  */
 
 /**
  * GET /
  * Welcome message.
+ * @name getWelcomeMessage
+ * @function
+ * @memberof module:express
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
  */
 app.get('/', (req, res) => {
   res.send('Welcome to my movie API!');
@@ -92,6 +46,11 @@ app.get('/', (req, res) => {
 /**
  * GET /movies
  * Get all movies.
+ * @name getMovies
+ * @function
+ * @memberof module:express
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
  */
 app.get('/movies', (req, res) => {
   Movie.find()
@@ -108,6 +67,11 @@ app.get('/movies', (req, res) => {
 /**
  * GET /genres/:id
  * Get a genre by ID.
+ * @name getGenreById
+ * @function
+ * @memberof module:express
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
  */
 app.get('/genres/:id', passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
@@ -126,6 +90,11 @@ app.get('/genres/:id', passport.authenticate('jwt', { session: false }), async (
 /**
  * GET /directors/:id
  * Get a director by ID.
+ * @name getDirectorById
+ * @function
+ * @memberof module:express
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
  */
 app.get('/directors/:id', passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
@@ -144,6 +113,11 @@ app.get('/directors/:id', passport.authenticate('jwt', { session: false }), asyn
 /**
  * POST /movies/login
  * Login user.
+ * @name loginUser
+ * @function
+ * @memberof module:express
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
  */
 app.post('/movies/login', async (req, res) => {
   const { username, password } = req.body;
@@ -171,6 +145,11 @@ app.post('/movies/login', async (req, res) => {
 /**
  * POST /movies
  * Create a new movie.
+ * @name createMovie
+ * @function
+ * @memberof module:express
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
  */
 app.post('/movies', passport.authenticate('jwt', { session: false }), (req, res) => {
   const movieData = req.body;
@@ -187,6 +166,11 @@ app.post('/movies', passport.authenticate('jwt', { session: false }), (req, res)
 /**
  * GET /movies/:movieId
  * Get a movie by ID.
+ * @name getMovieById
+ * @function
+ * @memberof module:express
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
  */
 app.get('/movies/:movieId', passport.authenticate('jwt', { session: false }), (req, res) => {
   const movieId = req.params.movieId;
@@ -206,6 +190,11 @@ app.get('/movies/:movieId', passport.authenticate('jwt', { session: false }), (r
 /**
  * DELETE /movies/:movieId
  * Delete a movie by ID.
+ * @name deleteMovieById
+ * @function
+ * @memberof module:express
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
  */
 app.delete('/movies/:movieId', passport.authenticate('jwt', { session: false }), (req, res) => {
   const movieId = req.params.movieId;
@@ -223,6 +212,9 @@ app.delete('/movies/:movieId', passport.authenticate('jwt', { session: false }),
 
 /**
  * Start the server.
+ * @name startServer
+ * @function
+ * @memberof module:express
  */
 const port = process.env.PORT || 8080;
 app.listen(port, '0.0.0.0',() => {
@@ -238,13 +230,13 @@ app.listen(port, '0.0.0.0',() => {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#cors">cors</a></li><li><a href="global.html#express">express</a></li><li><a href="global.html#port">port</a></li></ul>
+    <h2><a href="index.html">Home</a></h2>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Wed May 01 2024 09:17:30 GMT+0200 (Центральная Европа, летнее время)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Wed May 01 2024 09:30:36 GMT+0200 (Центральная Европа, летнее время)
 </footer>
 
 <script> prettyPrint(); </script>

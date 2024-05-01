@@ -1,13 +1,68 @@
 /**
+ * @namespace Routes
+ */
+
+const express = require('express');
+const app = express();
+const morgan = require('morgan');
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
+const { Movie, Genre, Director, User } = require('./models');
+const passport = require('passport');
+
+/**
+ * Connect to MongoDB database.
+ * @memberOf Routes
+ */
+mongoose.connect('mongodb+srv://esamonin1986:greenfly@mymovieapi.lxey35j.mongodb.net/MyMovieApi?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    console.log('Connected to MongoDB');
+  })
+  .catch(error => {
+    console.error('Error connecting to MongoDB:', error);
+  });
+
+/**
+ * Configure CORS.
+ * @memberOf Routes
+ */
+const cors = require('cors');
+let allowedOrigins = ['http://localhost:1234', 'http://testsite.com', 'https://userman1986.github.io', 'https://guarded-hamlet-46049-f301c8b926bd.herokuapp.com', 'https://myflixappfromevhenii.netlify.app'];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      let message = "The CORS policy for this application doesn't allow access from origin " + origin;
+      return callback(new Error(message), false);
+    }
+    return callback(null, true);
+  }
+}));
+
+/**
+ * Set up middleware.
+ * @memberOf Routes
+ */
+app.use(morgan('dev'));
+app.use(express.static('public'));
+app.use(express.json());
+
+/**
+ * Set up authentication.
+ * @memberOf Routes
+ */
+require('./auth')(app);
+
+/**
  * Define routes.
+ * @memberOf Routes
  */
 
 /**
  * GET /
  * Welcome message.
- * @name getWelcomeMessage
  * @function
- * @memberof module:express
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
  */
@@ -18,9 +73,7 @@ app.get('/', (req, res) => {
 /**
  * GET /movies
  * Get all movies.
- * @name getMovies
  * @function
- * @memberof module:express
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
  */
@@ -39,11 +92,11 @@ app.get('/movies', (req, res) => {
 /**
  * GET /genres/:id
  * Get a genre by ID.
- * @name getGenreById
  * @function
- * @memberof module:express
+ * @memberOf Routes
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
+ * @param {string} req.params.id - The ID of the genre to retrieve.
  */
 app.get('/genres/:id', passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
@@ -62,11 +115,11 @@ app.get('/genres/:id', passport.authenticate('jwt', { session: false }), async (
 /**
  * GET /directors/:id
  * Get a director by ID.
- * @name getDirectorById
  * @function
- * @memberof module:express
+ * @memberOf Routes
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
+ * @param {string} req.params.id - The ID of the director to retrieve.
  */
 app.get('/directors/:id', passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
@@ -85,11 +138,12 @@ app.get('/directors/:id', passport.authenticate('jwt', { session: false }), asyn
 /**
  * POST /movies/login
  * Login user.
- * @name loginUser
  * @function
- * @memberof module:express
+ * @memberOf Routes
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
+ * @param {string} req.body.username - The username for login.
+ * @param {string} req.body.password - The password for login.
  */
 app.post('/movies/login', async (req, res) => {
   const { username, password } = req.body;
@@ -117,11 +171,11 @@ app.post('/movies/login', async (req, res) => {
 /**
  * POST /movies
  * Create a new movie.
- * @name createMovie
  * @function
- * @memberof module:express
+ * @memberOf Routes
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
+ * @param {Object} req.body - The movie data.
  */
 app.post('/movies', passport.authenticate('jwt', { session: false }), (req, res) => {
   const movieData = req.body;
@@ -138,11 +192,11 @@ app.post('/movies', passport.authenticate('jwt', { session: false }), (req, res)
 /**
  * GET /movies/:movieId
  * Get a movie by ID.
- * @name getMovieById
  * @function
- * @memberof module:express
+ * @memberOf Routes
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
+ * @param {string} req.params.movieId - The ID of the movie to retrieve.
  */
 app.get('/movies/:movieId', passport.authenticate('jwt', { session: false }), (req, res) => {
   const movieId = req.params.movieId;
@@ -162,11 +216,11 @@ app.get('/movies/:movieId', passport.authenticate('jwt', { session: false }), (r
 /**
  * DELETE /movies/:movieId
  * Delete a movie by ID.
- * @name deleteMovieById
  * @function
- * @memberof module:express
+ * @memberOf Routes
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
+ * @param {string} req.params.movieId - The ID of the movie to delete.
  */
 app.delete('/movies/:movieId', passport.authenticate('jwt', { session: false }), (req, res) => {
   const movieId = req.params.movieId;
@@ -184,11 +238,10 @@ app.delete('/movies/:movieId', passport.authenticate('jwt', { session: false }),
 
 /**
  * Start the server.
- * @name startServer
  * @function
- * @memberof module:express
+ * @memberOf Routes
  */
 const port = process.env.PORT || 8080;
-app.listen(port, '0.0.0.0',() => {
+app.listen(port, '0.0.0.0', () => {
  console.log('Listening on Port ' + port);
 });

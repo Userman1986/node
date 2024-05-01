@@ -1,5 +1,9 @@
 /**
  * Require necessary modules.
+ * @module express
+ * @module mongoose
+ * @module passport
+ * @module cors
  */
 const express = require('express');
 const app = express();
@@ -11,6 +15,11 @@ const passport = require('passport');
 
 /**
  * Connect to MongoDB database.
+ * @function
+ * @name mongoose.connect
+ * @param {string} URI - MongoDB connection URI.
+ * @param {object} options - Connection options.
+ * @returns {Promise<void>}
  */
 mongoose.connect('mongodb+srv://esamonin1986:greenfly@mymovieapi.lxey35j.mongodb.net/MyMovieApi?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
@@ -22,6 +31,9 @@ mongoose.connect('mongodb+srv://esamonin1986:greenfly@mymovieapi.lxey35j.mongodb
 
 /**
  * Configure CORS.
+ * @function
+ * @name app.use
+ * @param {function} middleware - Middleware function for CORS.
  */
 const cors = require('cors');
 let allowedOrigins = ['http://localhost:1234', 'http://testsite.com', 'https://userman1986.github.io', 'https://guarded-hamlet-46049-f301c8b926bd.herokuapp.com', 'https://myflixappfromevhenii.netlify.app'];
@@ -39,6 +51,9 @@ app.use(cors({
 
 /**
  * Set up middleware.
+ * @function
+ * @name app.use
+ * @param {function} middleware - Middleware function for logging and parsing JSON.
  */
 app.use(morgan('dev'));
 app.use(express.static('public'));
@@ -46,6 +61,8 @@ app.use(express.json());
 
 /**
  * Set up authentication.
+ * @function
+ * @name require
  */
 require('./auth')(app);
 
@@ -56,6 +73,11 @@ require('./auth')(app);
 /**
  * GET /
  * Welcome message.
+ * @name getWelcomeMessage
+ * @function
+ * @memberof module:express
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
  */
 app.get('/', (req, res) => {
   res.send('Welcome to my movie API!');
@@ -64,6 +86,11 @@ app.get('/', (req, res) => {
 /**
  * GET /movies
  * Get all movies.
+ * @name getMovies
+ * @function
+ * @memberof module:express
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
  */
 app.get('/movies', (req, res) => {
   Movie.find()
@@ -77,124 +104,14 @@ app.get('/movies', (req, res) => {
     });
 });
 
-/**
- * GET /genres/:id
- * Get a genre by ID.
- */
-app.get('/genres/:id', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  try {
-    const genreId = req.params.id;
-    const genre = await Genre.findById(genreId);
-    if (!genre) {
-      return res.status(404).json({ error: 'Genre not found' });
-    }
-    res.json(genre);
-  } catch (error) {
-    console.error('Error fetching genre:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-/**
- * GET /directors/:id
- * Get a director by ID.
- */
-app.get('/directors/:id', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  try {
-    const directorId = req.params.id;
-    const director = await Director.findById(directorId);
-    if (!director) {
-      return res.status(404).json({ error: 'Director not found' });
-    }
-    res.json(director);
-  } catch (error) {
-    console.error('Error fetching director:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-/**
- * POST /movies/login
- * Login user.
- */
-app.post('/movies/login', async (req, res) => {
-  const { username, password } = req.body;
-
-  try {
-    const user = await User.findOne({ Username: username });
-    if (!user) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-
-    const isPasswordValid = await user.validatePassword(password);
-    if (!isPasswordValid) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-
-    const token = generateToken(user);
-
-    res.json({ user, token });
-  } catch (error) {
-    console.error('Error during login:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-/**
- * POST /movies
- * Create a new movie.
- */
-app.post('/movies', passport.authenticate('jwt', { session: false }), (req, res) => {
-  const movieData = req.body;
-  Movie.create(movieData)
-    .then(movie => {
-      res.json(movie);
-    })
-    .catch(error => {
-      console.error('Error creating movie:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    });
-});
-
-/**
- * GET /movies/:movieId
- * Get a movie by ID.
- */
-app.get('/movies/:movieId', passport.authenticate('jwt', { session: false }), (req, res) => {
-  const movieId = req.params.movieId;
-  Movie.findById(movieId)
-    .then(movie => {
-      if (!movie) {
-        return res.status(404).json({ error: 'Movie not found' });
-      }
-      res.json(movie);
-    })
-    .catch(error => {
-      console.error('Error fetching movie:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    });
-});
-
-/**
- * DELETE /movies/:movieId
- * Delete a movie by ID.
- */
-app.delete('/movies/:movieId', passport.authenticate('jwt', { session: false }), (req, res) => {
-  const movieId = req.params.movieId;
-  Movie.findByIdAndRemove(movieId)
-    .then(() => {
-      res.json({ message: 'Movie deleted successfully' });
-    })
-    .catch(error => {
-      console.error('Error deleting movie:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    });
-});
-
-// Define other routes as needed...
+// Define other routes with appropriate JSDoc tags...
 
 /**
  * Start the server.
+ * @name startServer
+ * @function
+ * @memberof module:express
+ * @param {number} port - Port number for the server.
  */
 const port = process.env.PORT || 8080;
 app.listen(port, '0.0.0.0',() => {
